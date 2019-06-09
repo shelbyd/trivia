@@ -191,14 +191,20 @@ impl Game {
 
 fn main()
 {
+    use rand::*;
+    let seed = std::env::var("SEED").ok().and_then(|s| s.parse().ok());
+    let mut rng: Box<Rng> = seed
+        .map(|s| Box::new(rand::StdRng::from_seed(&[s])) as Box<Rng>)
+        .unwrap_or_else(|| Box::new(thread_rng()));
+
     let mut not_a_winner : bool = false;
     let mut game = Game {..Default::default()}; 
     game.add("Chet".to_string());
     game.add("Pat".to_string());
     game.add("Sue".to_string());
     while {
-        game.roll(rand::random::<i32>() % 5 + 1);
-        if rand::random::<i32>() % 9 == 7 {
+        game.roll(rng.gen::<i32>() % 5 + 1);
+        if rng.gen::<i32>() % 9 == 7 {
             not_a_winner = game.wrong_answer();
         }
         else {
